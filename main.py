@@ -82,73 +82,85 @@ class Dog:
 
 # Функция начала игры
 def start_game():
-    # TODO Дописать проверку на целое положительное число от 3 до 10 (иначе собачки устанут)
-    laps = int(input('Введите количество кругов: '))
-    arena = Arena(laps)
     player = Player()
-    dogs = [Dog() for i in range(1, 9)] # Создаем список из 8 песиков
-    odds = [dogs[i].odds for i in range(len(dogs))] # Создаем массив коэффициентов для проверки на вилку
+    while player.money:
+        # TODO Дописать проверку на целое положительное число от 3 до 10 (иначе собачки устанут)
+        laps = int(input('Введите количество кругов: '))
+        arena = Arena(laps)
+        dogs = [Dog() for i in range(1, 9)] # Создаем список из 8 песиков
+        odds = [dogs[i].odds for i in range(len(dogs))] # Создаем массив коэффициентов для проверки на вилку
 
-    # TODO: Описать поведение при наличии вилки, пока исходим из того, что она отсутствует
-    is_fork = sum(1 / i for i in odds) # Проверка наличия вилки
-    # print('есть вилка, пересчитать коэффициенты') if is_fork < 1 else print('вилки нет, можно продолжать')
+        # TODO: Описать поведение при наличии вилки, пока исходим из того, что она отсутствует
+        is_fork = sum(1 / i for i in odds) # Проверка наличия вилки
+        # print('есть вилка, пересчитать коэффициенты') if is_fork < 1 else print('вилки нет, можно продолжать')
 
-    # Рисуем таблицу участников
-    print('')
-    print(f'{'Таблица участников':>25}')
-    print('')
-    print(f"{'№':<3} {'Имя':<10} {'Коэф.':<8} {'Нач. скор.':>10}")
-    print('-' * 34)
-    for idx, dog in enumerate(dogs, start=1):
-        print(f"{idx:<3} {dog.name:<10} {dog.odds:<8} {dog.speed:>10}")
-    print('')
+        # Рисуем таблицу участников
+        print('')
+        print(f'{'Таблица участников':>25}')
+        print('')
+        print(f"{'№':<3} {'Имя':<10} {'Коэф.':<8} {'Нач. скор.':>10}")
+        print('-' * 34)
+        for idx, dog in enumerate(dogs, start=1):
+            print(f"{idx:<3} {dog.name:<10} {dog.odds:<8} {dog.speed:>10}")
+        print('')
 
-    # Принимаем ставку
-    winner = int(input('Введите номер участника для ставки: '))
-    bet_amount = int(input('Введите сумму ставки: '))
-    print(f'баланс: {player.money}')
-    player.money -= bet_amount
-    print(f'баланс: {player.money}')
+        # Принимаем ставку
+        winner = int(input('Введите номер участника для ставки: '))
+        while True:
+            bet_amount = int(input('Введите сумму ставки: '))
+            if bet_amount <= player.money:
+                player.money -= bet_amount
+                break
+            else:
+                print('')
+                print(f'Сумма ставки превышает текущий баланс: {player.money}')
+                print('')
 
-    # Для красоты
-    print('')
-    print(f'Вы поставили {bet_amount}$ на победу участника №{winner} по кличке {dogs[winner - 1].name}')
-    print('')
-    print('Забег начинается!')
-    text = "3...2...1..."
-    for char in text:
-        print(char, end='', flush=True)
-        time.sleep(0.2)
-    print('')
-    print('')
+        # Для красоты
+        print('')
+        print(f'Вы поставили {bet_amount}$ на победу участника №{winner} по кличке {dogs[winner - 1].name}')
+        print('')
+        print('Забег начинается!')
+        text = "3...2...1..."
+        for char in text:
+            print(char, end='', flush=True)
+            time.sleep(0.2)
+        print('')
+        print('')
 
-    # Вычисляем победителя
-    lap_winner = None
-    current_lap = 1
-    while current_lap <= arena.laps:
-        for dog in dogs:
-            dog.total_time += arena.length / dog.speed
-            # Раскомментировать print ниже, чтобы отследить лидера по каждому кругу
-            print(f'Текущая скорость: {dog.speed:.2f} Общее время: {dog.total_time:.3f} ')
-            dog.speed -= round(random.randrange(10, 120) / 10, 2)
-            if dog.speed < 11:
-                dog.speed = 11
-        arr_total_time = [dogs[i].total_time for i in range(len(dogs))]
-        lap_winner = arr_total_time.index(min(arr_total_time))
-        print(f'В конце {current_lap}го круга лидирует {dogs[lap_winner].name}')
-        current_lap += 1
-        time.sleep(1.5)
-    print('')
-    print(f'{dogs[lap_winner].name} - победитель!')
+        # Вычисляем победителя
+        lap_winner = None
+        current_lap = 1
+        while current_lap <= arena.laps:
+            for dog in dogs:
+                dog.total_time += arena.length / dog.speed
+                # Раскомментировать print ниже, чтобы отследить лидера по каждому кругу
+                # print(f'Текущая скорость: {dog.speed:.2f} Общее время: {dog.total_time:.3f} ')
+                dog.speed -= round(random.randrange(10, 120) / 10, 2)
+                if dog.speed < 11:
+                    dog.speed = 11
+            arr_total_time = [dogs[i].total_time for i in range(len(dogs))]
+            lap_winner = arr_total_time.index(min(arr_total_time))
+            print(f'В конце {current_lap}го круга лидирует {dogs[lap_winner].name}')
+            current_lap += 1
+            time.sleep(1.5)
+        print('')
+        print(f'{dogs[lap_winner].name} - победитель!')
 
-    # Вычисляем сумму выигрыша
-    if dogs[lap_winner].name == dogs[winner - 1].name:
-        print('Ваша ставка сыграла!')
-        print(f'Сумма ставки: {bet_amount}. Выигрыш: {bet_amount * dogs[lap_winner].odds}')
-        player.money += bet_amount * dogs[lap_winner].odds
-    else:
-        print('Ваша ставка не прошла. Возможно повезет в следующий раз!')
-    print(f'Текущий баланс: {player.money}')
+        # Вычисляем сумму выигрыша
+        if dogs[lap_winner].name == dogs[winner - 1].name:
+            print('Ваша ставка сыграла!')
+            print(f'Сумма ставки: {bet_amount}. Выигрыш: {bet_amount * dogs[lap_winner].odds}')
+            player.money += bet_amount * dogs[lap_winner].odds
+        else:
+            print('Ваша ставка не прошла. Возможно повезет в следующий раз!')
+        print(f'Текущий баланс: {player.money}')
+        print('')
+
+        # Завершаем игру
+        if player.money == 0:
+            print('Вы проиграли все деньги. Ждем Вас снова :)')
+            break
 
 
 start_game()
